@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Dada\LAutoClassHelper\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LAutoClassHelperCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'l-auto-class-helper';
 
     public $description = 'My command';
 
