@@ -2,9 +2,9 @@
 
 namespace Dada\LAutoClassHelper;
 
+use Dada\LAutoClassHelper\Commands\LAutoClassHelperCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Dada\LAutoClassHelper\Commands\LAutoClassHelperCommand;
 
 class LAutoClassHelperServiceProvider extends PackageServiceProvider
 {
