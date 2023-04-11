@@ -2,9 +2,9 @@
 
 namespace Dada\LAutoClassHelper\Tests;
 
+use Dada\LAutoClassHelper\LAutoClassHelperServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Dada\LAutoClassHelper\LAutoClassHelperServiceProvider;
 
 class TestCase extends Orchestra
 {
