@@ -6,5 +6,4 @@ use Dada\LAutoClassHelper\Tests\TestCase;
 
 class FeatureTest extends TestCase
 {
-
 }
