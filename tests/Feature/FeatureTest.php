@@ -1,4 +1,5 @@
 <?php
+
 //
 //namespace Dada\LAutoClassHelper\Tests\Feature;
 //
