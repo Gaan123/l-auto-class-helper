@@ -52,7 +52,7 @@ php artisan vendor:publish --tag="l-auto-class-helper-views"
 ## Usage
 
 ```php
-$lAutoClassHelper = new Dada\LAutoClassHelper();
+$lAutoClassHelper = new Dada\AutoClassHelper();
 echo $lAutoClassHelper->echoPhrase('Hello, Dada!');
 ```
 

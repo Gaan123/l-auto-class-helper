@@ -1,6 +1,6 @@
 <?php
 
-namespace Dada\LAutoClassHelper\Database\Factories;
+namespace Dada\AutoClassHelper\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

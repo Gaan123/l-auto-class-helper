@@ -34,13 +34,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Dada\\LAutoClassHelper\\": "src/",
-            "Dada\\LAutoClassHelper\\Database\\Factories\\": "database/factories/"
+            "Dada\\AutoClassHelper\\": "src/",
+            "Dada\\AutoClassHelper\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Dada\\LAutoClassHelper\\Tests\\": "tests/"
+            "Dada\\AutoClassHelper\\Tests\\": "tests/",
+            "Dada\\AutoClassHelper\\Dev\\": "devsrc"
         }
     },
     "scripts": {
@@ -60,10 +61,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Dada\\LAutoClassHelper\\LAutoClassHelperServiceProvider"
+                "Dada\\AutoClassHelper\\AutoClassHelperServiceProvider"
             ],
             "aliases": {
-                "LAutoClassHelper": "Dada\\LAutoClassHelper\\Facades\\LAutoClassHelper"
+                "AutoClassHelper": "AutoClassHelper"
             }
         }
     },

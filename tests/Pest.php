@@ -1,6 +1,6 @@
 <?php
 
-use Dada\LAutoClassHelper\Tests\TestCase;
+use Dada\AutoClassHelper\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
 uses(TestCase::class)

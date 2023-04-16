@@ -1,12 +1,12 @@
 <?php
 
-namespace Dada\LAutoClassHelper;
+namespace Dada\AutoClassHelper;
 
-use Dada\LAutoClassHelper\Commands\LAutoClassHelperCommand;
+use Dada\AutoClassHelper\Commands\AutoClassHelperCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class LAutoClassHelperServiceProvider extends PackageServiceProvider
+class AutoClassHelperServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -20,6 +20,6 @@ class LAutoClassHelperServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_l-auto-class-helper_table')
-            ->hasCommand(LAutoClassHelperCommand::class);
+            ->hasCommand(AutoClassHelperCommand::class);
     }
 }

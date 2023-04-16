@@ -1,10 +1,10 @@
 <?php
 
-namespace Dada\LAutoClassHelper\Commands;
+namespace Dada\AutoClassHelper\Commands;
 
 use Illuminate\Console\Command;
 
-class LAutoClassHelperCommand extends Command
+class AutoClassHelperCommand extends Command
 {
     public $signature = 'l-auto-class-helper';
 

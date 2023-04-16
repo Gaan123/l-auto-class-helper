@@ -1,6 +1,6 @@
 <?php
 
-// config for Dada/LAutoClassHelper
+// config for Dada/AutoClassHelper
 return [
 
 ];
