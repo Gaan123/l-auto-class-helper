@@ -3,6 +3,7 @@
 namespace Dada\AutoClassHelper;
 
 use Dada\AutoClassHelper\Commands\AutoClassHelperCommand;
+use Dada\AutoClassHelper\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -24,5 +25,8 @@ class AutoClassHelperServiceProvider extends ServiceProvider
 //            ->hasCommand(AutoClassHelperCommand::class);
 //    }
 
-
+    public function register()
+    {
+        AutoClassHelper::bindClass(__DIR__.'/Facades', __DIR__.'/Services');
+    }
 }

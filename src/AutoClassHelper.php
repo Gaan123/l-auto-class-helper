@@ -3,11 +3,9 @@
 namespace Dada\AutoClassHelper;
 
 use BadMethodCallException;
+use Dada\AutoClassHelper\Services\ClassHelper;
 use Illuminate\Support\Str;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\ParserFactory;
-use SplFileInfo;
-use Symfony\Component\Finder\Finder;
+
 
 class AutoClassHelper
 {
@@ -22,7 +20,6 @@ class AutoClassHelper
     {
         if (method_exists(get_called_class(), $method)) {
             $obj = new static();
-
             return call_user_func_array([$obj, $method], $args);
         }
         throw new BadMethodCallException();
@@ -50,16 +47,16 @@ class AutoClassHelper
         string $basePathConcreteClass,
         array $extra = []
     ): bool {
+        $classHelper=new ClassHelper();
         $this->basePathConcreteClass = $basePathConcreteClass;
         $this->basePathAbstractClass = $basePathAbstractClass;
-        $abstractClasses = $this->getClasses($basePathAbstractClass);
-        $concreteClasses = $this->getClasses($basePathConcreteClass);
-        if (! count($abstractClasses) && ! count($concreteClasses)) {
-            return false;
-        }
+        $abstractClasses = $classHelper->getClasses($basePathAbstractClass);
+        $concreteClasses = $classHelper->getClasses($basePathConcreteClass);
+        if (! count($abstractClasses) && ! count($concreteClasses))return false;
 
         $except = $extra['except'] ?? [];
         $dynBind = $extra['dynBind'] ?? [];
+
         $abstractClasses = array_diff($abstractClasses,
             [...$except, ...array_column($dynBind, 'abstract')]);
         $this->simpleBind($abstractClasses);
@@ -70,43 +67,6 @@ class AutoClassHelper
         return true;
     }
 
-    /**
-     * @return array with valid classes within given path
-     */
-    protected function getClasses(string $path): array
-    {
-        // Loop through the tokens to find the namespace declaration
-        $finder = Finder::create();
-        $finder->in($path)->size('<= 2mi')->filter(fn ($file
-            ) => $file->getExtension() === 'php')
-            ->contains('~^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)~mi');
-        $classes = [];
-        foreach ($finder as $file) {
-            if ($this->getNameSpaceFromFile($file)) {
-                $classes[] = $this->getNameSpaceFromFile($file).'\\'
-                    .str_replace('/', '\\',
-                        explode('.', $file->getRelativePathname()))[0];
-            }
-        }
-
-        return $classes;
-    }
-
-    protected function getNameSpaceFromFile(SplFileInfo $file): string|bool
-    {
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-
-        $contents = file_get_contents($file->getPathname());
-
-        $stmts = $parser->parse($contents);
-        foreach ($stmts as $stmt) {
-            if ($stmt instanceof Namespace_) {
-                return $stmt->name->toString();
-            }
-        }
-
-        return false;
-    }
 
     /**
      * @return void
@@ -159,20 +119,5 @@ class AutoClassHelper
         }
     }
 
-    protected function getFileByFormat(string $path, string $format): array
-    {
-        $files = $this->getAllFiles($path);
 
-        return array_filter($files,
-            fn ($file) => $file->getExtension() === $format);
-    }
-
-    protected function getAllFiles(string $path): array
-    {
-        $finder = Finder::create();
-
-        $finder->in($path)->size('<= 1mi')->depth(0);
-
-        return iterator_to_array($finder);
-    }
 }
