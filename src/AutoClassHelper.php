@@ -16,9 +16,6 @@ class AutoClassHelper
     private string $basePathConcreteClass;
 
     /**
-     * @param $method
-     * @param $args
-     *
      * @return mixed
      */
     public static function __callStatic($method, $args)
@@ -32,9 +29,6 @@ class AutoClassHelper
     }
 
     /**
-     * @param $method
-     * @param $args
-     *
      * @return mixed
      */
     public function __call($method, $args)
@@ -46,12 +40,10 @@ class AutoClassHelper
     }
 
     /**
-     * @param  string  $basePathAbstractClass
-     * @param  string  $basePathConcreteClass
      * @param  array  $extra ['except'=>(array)'skip all class within it','dynBind'=>'give an feature to pass args to dynamic binding']
+     *
      * @description dynBind ['abstract'=>'abstract class sting','concrete'=>'concrete class string','singleton'=>(bool)'singleton or 'bind]
      * @description dynBind ['args'=>(array)'arguments in array']
-     * @return bool
      */
     protected function bindClass(
         string $basePathAbstractClass,
@@ -62,7 +54,7 @@ class AutoClassHelper
         $this->basePathAbstractClass = $basePathAbstractClass;
         $abstractClasses = $this->getClasses($basePathAbstractClass);
         $concreteClasses = $this->getClasses($basePathConcreteClass);
-        if ( ! count($abstractClasses) && ! count($concreteClasses)) {
+        if (! count($abstractClasses) && ! count($concreteClasses)) {
             return false;
         }
 
@@ -79,15 +71,13 @@ class AutoClassHelper
     }
 
     /**
-     * @param  string  $path
-     *
      * @return array with valid classes within given path
      */
     protected function getClasses(string $path): array
     {
         // Loop through the tokens to find the namespace declaration
         $finder = Finder::create();
-        $finder->in($path)->size('<= 2mi')->filter(fn($file
+        $finder->in($path)->size('<= 2mi')->filter(fn ($file
             ) => $file->getExtension() === 'php')
             ->contains('~^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)~mi');
         $classes = [];
@@ -102,11 +92,6 @@ class AutoClassHelper
         return $classes;
     }
 
-    /**
-     * @param  SplFileInfo  $file
-     *
-     * @return string|bool
-     */
     protected function getNameSpaceFromFile(SplFileInfo $file): string|bool
     {
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
@@ -124,9 +109,6 @@ class AutoClassHelper
     }
 
     /**
-     * @param $abstractClasses
-     * @param $singleton
-     *
      * @return void
      */
     private function simpleBind($abstractClasses, $singleton = true)
@@ -150,8 +132,6 @@ class AutoClassHelper
     }
 
     /**
-     * @param $dynamicClasses
-     *
      * @return void
      */
     private function dynamicBind($dynamicClasses)
@@ -179,25 +159,14 @@ class AutoClassHelper
         }
     }
 
-    /**
-     * @param  string  $path
-     * @param  string  $format
-     *
-     * @return array
-     */
     protected function getFileByFormat(string $path, string $format): array
     {
         $files = $this->getAllFiles($path);
 
         return array_filter($files,
-            fn($file) => $file->getExtension() === $format);
+            fn ($file) => $file->getExtension() === $format);
     }
 
-    /**
-     * @param  string  $path
-     *
-     * @return array
-     */
     protected function getAllFiles(string $path): array
     {
         $finder = Finder::create();
