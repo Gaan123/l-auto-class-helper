@@ -6,7 +6,6 @@ use Symfony\Component\Finder\Finder;
 
 class File
 {
-
     public function getFileByFormat(string $path, string $format): array
     {
         $files = $this->getAllFiles($path);

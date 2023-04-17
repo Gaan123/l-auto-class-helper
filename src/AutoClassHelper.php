@@ -6,7 +6,6 @@ use BadMethodCallException;
 use Dada\AutoClassHelper\Services\ClassHelper;
 use Illuminate\Support\Str;
 
-
 class AutoClassHelper
 {
     private string $basePathAbstractClass;
@@ -20,6 +19,7 @@ class AutoClassHelper
     {
         if (method_exists(get_called_class(), $method)) {
             $obj = new static();
+
             return call_user_func_array([$obj, $method], $args);
         }
         throw new BadMethodCallException();
@@ -47,12 +47,14 @@ class AutoClassHelper
         string $basePathConcreteClass,
         array $extra = []
     ): bool {
-        $classHelper=new ClassHelper();
+        $classHelper = new ClassHelper();
         $this->basePathConcreteClass = $basePathConcreteClass;
         $this->basePathAbstractClass = $basePathAbstractClass;
         $abstractClasses = $classHelper->getClasses($basePathAbstractClass);
         $concreteClasses = $classHelper->getClasses($basePathConcreteClass);
-        if (! count($abstractClasses) && ! count($concreteClasses))return false;
+        if (! count($abstractClasses) && ! count($concreteClasses)) {
+        return false;
+        }
 
         $except = $extra['except'] ?? [];
         $dynBind = $extra['dynBind'] ?? [];
@@ -66,7 +68,6 @@ class AutoClassHelper
 
         return true;
     }
-
 
     /**
      * @return void
@@ -118,6 +119,4 @@ class AutoClassHelper
             }
         }
     }
-
-
 }

@@ -39,15 +39,16 @@ class ClassHelper
 
         $stmts = $parser->parse($contents);
         foreach ($stmts as $stmt) {
-            if ($stmt instanceof Namespace_)return $stmt->name->toString();
+            if ($stmt instanceof Namespace_) {
+            return $stmt->name->toString();
+            }
         }
 
         return false;
     }
 
-
-    public function getInstanceOfClasses(string $path,string $parentClass):array
+    public function getInstanceOfClasses(string $path, string $parentClass): array
     {
-       return array_filter($this->getClasses($path),fn($class)=>is_subclass_of($class,$parentClass));
+       return array_filter($this->getClasses($path), fn ($class) => is_subclass_of($class, $parentClass));
     }
 }
