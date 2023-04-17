@@ -11,65 +11,133 @@ use Symfony\Component\Finder\Finder;
 
 class AutoClassHelper
 {
-private string $basePathAbstractClass;
+    private string $basePathAbstractClass;
 
-private string $basePathConcreteClass;
-//    public function __construct(private readonly string $basePathAbstractClass,private readonly string $basePathConcreteClass)
-//    {
-////        dd($this->app)
-//    }
+    private string $basePathConcreteClass;
 
+    /**
+     * @param $method
+     * @param $args
+     *
+     * @return mixed
+     */
     public static function __callStatic($method, $args)
     {
         if (method_exists(get_called_class(), $method)) {
             $obj = new static();
 
-            return call_user_func_array(
-                [$obj, $method],
-                $args
-            );
+            return call_user_func_array([$obj, $method], $args);
         }
         throw new BadMethodCallException();
     }
 
+    /**
+     * @param $method
+     * @param $args
+     *
+     * @return mixed
+     */
     public function __call($method, $args)
     {
         if (method_exists(get_called_class(), $method)) {
-            return call_user_func_array(
-                [$this, $method],
-                $args
-            );
+            return call_user_func_array([$this, $method], $args);
         }
         throw new BadMethodCallException();
     }
 
-    protected function bindClass(string $basePathAbstractClass, string $basePathConcreteClass, array $extra = []): bool
-    {
+    /**
+     * @param  string  $basePathAbstractClass
+     * @param  string  $basePathConcreteClass
+     * @param  array  $extra ['except'=>(array)'skip all class within it','dynBind'=>'give an feature to pass args to dynamic binding']
+     * @description dynBind ['abstract'=>'abstract class sting','concrete'=>'concrete class string','singleton'=>(bool)'singleton or 'bind]
+     * @description dynBind ['args'=>(array)'arguments in array']
+     * @return bool
+     */
+    protected function bindClass(
+        string $basePathAbstractClass,
+        string $basePathConcreteClass,
+        array $extra = []
+    ): bool {
         $this->basePathConcreteClass = $basePathConcreteClass;
         $this->basePathAbstractClass = $basePathAbstractClass;
         $abstractClasses = $this->getClasses($basePathAbstractClass);
         $concreteClasses = $this->getClasses($basePathConcreteClass);
-        if (! count($abstractClasses) && ! count($concreteClasses)) {
-        return false;
+        if ( ! count($abstractClasses) && ! count($concreteClasses)) {
+            return false;
         }
 
         $except = $extra['except'] ?? [];
         $dynBind = $extra['dynBind'] ?? [];
-        $abstractClasses = array_diff($abstractClasses, [...$except, ...array_column($dynBind, 'abstract')]);
+        $abstractClasses = array_diff($abstractClasses,
+            [...$except, ...array_column($dynBind, 'abstract')]);
         $this->simpleBind($abstractClasses);
         if (count($dynBind)) {
-        $this->dynamicBind($dynBind);
+            $this->dynamicBind($dynBind);
         }
 
         return true;
     }
 
+    /**
+     * @param  string  $path
+     *
+     * @return array with valid classes within given path
+     */
+    protected function getClasses(string $path): array
+    {
+        // Loop through the tokens to find the namespace declaration
+        $finder = Finder::create();
+        $finder->in($path)->size('<= 2mi')->filter(fn($file
+            ) => $file->getExtension() === 'php')
+            ->contains('~^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)~mi');
+        $classes = [];
+        foreach ($finder as $file) {
+            if ($this->getNameSpaceFromFile($file)) {
+                $classes[] = $this->getNameSpaceFromFile($file).'\\'
+                    .str_replace('/', '\\',
+                        explode('.', $file->getRelativePathname()))[0];
+            }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * @param  SplFileInfo  $file
+     *
+     * @return string|bool
+     */
+    protected function getNameSpaceFromFile(SplFileInfo $file): string|bool
+    {
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+
+        $contents = file_get_contents($file->getPathname());
+
+        $stmts = $parser->parse($contents);
+        foreach ($stmts as $stmt) {
+            if ($stmt instanceof Namespace_) {
+                return $stmt->name->toString();
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $abstractClasses
+     * @param $singleton
+     *
+     * @return void
+     */
     private function simpleBind($abstractClasses, $singleton = true)
     {
         foreach ($abstractClasses as $abstractClass) {
-            $baseAbstractNamespace = ucfirst(Str::camel(basename($this->basePathAbstractClass)));
-            $baseConcreteNamespace = ucfirst(Str::camel(basename($this->basePathConcreteClass)));
-            $concreteClass = str_replace(search: $baseAbstractNamespace, replace: $baseConcreteNamespace, subject: $abstractClass);
+            $baseAbstractNamespace
+                = ucfirst(Str::camel(basename($this->basePathAbstractClass)));
+            $baseConcreteNamespace
+                = ucfirst(Str::camel(basename($this->basePathConcreteClass)));
+            $concreteClass = str_replace(search: $baseAbstractNamespace,
+                replace: $baseConcreteNamespace, subject: $abstractClass);
             if (class_exists($abstractClass) && class_exists($concreteClass)) {
                 if ($singleton) {
                     app()->singleton($abstractClass, $concreteClass);
@@ -81,17 +149,26 @@ private string $basePathConcreteClass;
         }
     }
 
+    /**
+     * @param $dynamicClasses
+     *
+     * @return void
+     */
     private function dynamicBind($dynamicClasses)
     {
         foreach ($dynamicClasses as $dynamicClass) {
             extract($dynamicClass);
-            if (isset($abstract) && isset($concrete) &&
-                (class_exists($abstract) || interface_exists($abstract)) && class_exists($concrete)) {
+            if (isset($abstract) && isset($concrete)
+                && (class_exists($abstract)
+                    || interface_exists($abstract))
+                && class_exists($concrete)
+            ) {
                 $args = $args ?? [];
                 if ($singleton ?? true) {
-                    app()->singleton($abstract, function () use ($concrete, $args) {
-                        new $concrete(...$args);
-                    });
+                    app()->singleton($abstract,
+                        function () use ($concrete, $args) {
+                            new $concrete(...$args);
+                        });
 
                     continue;
                 }
@@ -102,67 +179,31 @@ private string $basePathConcreteClass;
         }
     }
 
-    protected function getAllFiles(string $path): array
-    {
-        $finder = Finder::create();
-
-        $finder
-            ->in($path)
-            ->size('<= 1mi')
-            ->depth(0)
-            ->contains('~^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)~mi');
-
-        return iterator_to_array($finder);
-    }
-
-//    protected function getBaseFolder(string $path):string
-//    {
-//        explode('/',$path);
-//    }
-
+    /**
+     * @param  string  $path
+     * @param  string  $format
+     *
+     * @return array
+     */
     protected function getFileByFormat(string $path, string $format): array
     {
         $files = $this->getAllFiles($path);
 
-        return array_filter($files, fn ($file) => $file->getExtension() === $format);
-    }
-
-    protected function getClasses(string $path): array
-    {
-        // Loop through the tokens to find the namespace declaration
-        $finder = Finder::create();
-        $finder
-            ->in($path)
-            ->size('<= 2mi')
-            ->filter(fn ($file) => $file->getExtension() === 'php')
-            ->contains('~^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)~mi');
-        $classes = [];
-        foreach ($finder as $file) {
-            if ($this->getNameSpaceFromFile($file)) {
-            $classes[] = $this->getNameSpaceFromFile($file).'\\'.str_replace('/', '\\', explode('.', $file->getRelativePathname()))[0];
-            }
-        }
-
-        return $classes;
+        return array_filter($files,
+            fn($file) => $file->getExtension() === $format);
     }
 
     /**
-     * @return string
+     * @param  string  $path
+     *
+     * @return array
      */
-    protected function getNameSpaceFromFile(SplFileInfo $file): string|bool
+    protected function getAllFiles(string $path): array
     {
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $finder = Finder::create();
 
-            $contents = file_get_contents($file->getPathname());
+        $finder->in($path)->size('<= 1mi')->depth(0);
 
-                $stmts = $parser->parse($contents);
-                foreach ($stmts as $stmt) {
-                    if ($stmt instanceof Namespace_) {
-                        return $stmt->name->toString();
-                    }
-                }
-
-                return false;
-
+        return iterator_to_array($finder);
     }
 }
