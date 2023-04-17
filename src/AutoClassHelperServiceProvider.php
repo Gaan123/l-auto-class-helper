@@ -5,7 +5,6 @@ namespace Dada\AutoClassHelper;
 use Dada\AutoClassHelper\Commands\AutoClassHelperCommand;
 use Illuminate\Support\ServiceProvider;
 use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class AutoClassHelperServiceProvider extends ServiceProvider
 {
@@ -23,6 +22,5 @@ class AutoClassHelperServiceProvider extends ServiceProvider
 //            ->hasMigration('create_l-auto-class-helper_table')
 //            ->hasCommand(AutoClassHelperCommand::class);
 //    }
-
 
 }
