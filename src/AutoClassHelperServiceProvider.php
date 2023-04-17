@@ -3,7 +3,6 @@
 namespace Dada\AutoClassHelper;
 
 use Dada\AutoClassHelper\Commands\AutoClassHelperCommand;
-use Dada\AutoClassHelper\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
