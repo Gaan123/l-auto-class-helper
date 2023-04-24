@@ -6,20 +6,23 @@ trait Observable
 {
     public static function bootObservable()
     {
-        $observerClass=static::hasObserver();
-        if($observerClass){
+        $observerClass = static::hasObserver();
+        if ($observerClass) {
             (new static())->registerObserver($observerClass);
+
         return true;
         }
-        return  false;
+
+        return false;
 
     }
 
-    private static function hasObserver():bool|string
+    private static function hasObserver(): bool|string
     {
         $modelName = class_basename(static::class);
         $baseNamespace = substr(static::class, 0, strpos(static::class, '\Models'));
         $observerClass = "$baseNamespace\\Observers\\{$modelName}Observer";
-        return class_exists($observerClass)?$observerClass:false;
+
+        return class_exists($observerClass) ? $observerClass : false;
     }
 }

@@ -6,7 +6,7 @@ uses(TestCase::class)->in(__DIR__);
 uses(TestCase::class)
     ->group('feature')
     ->in(__DIR__.'/Feature');
-function accessPrivateOrProtected(object $object,string $method)
+function accessPrivateOrProtected(object $object, string $method)
 {
     $reflection = new \ReflectionClass($object);
     $method = $reflection->getMethod($method);
